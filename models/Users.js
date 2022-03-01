@@ -18,6 +18,12 @@ const UserSchema = new Schema({
         type: String,
         required: true
     },
+    profile : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : "profileImage.files",
+        required: false,
+        default : null
+    },
     date:  {
         type: Date,
         default:Date.now
