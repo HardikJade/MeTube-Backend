@@ -1,33 +1,11 @@
 const express = require('express');
 const Users = require('../models/Users');
-const router = express.Router();
+const getDetails = require('../middleware/GetDetails');
 const { body, validationResult } = require('express-validator');
+const router = express.Router();
 const bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
-const getDetails = require('../middleware/GetDetails');
 require('dotenv').config();
-
-
-const multer = require('multer');
-const upload = multer({dest : "tmp/"});
-const profilePic = require('../middleware/ProfileImage');
-const User = require('../models/Users');
-router.put('/upload/avatar',getDetails,profilePic.single('profile'),async (request,response)=>{
-    const userid = request.user_id;
-    const fileid = request.file.id;
-    let user = User.findById(userid);
-    if(user && userid !== undefined && fileid !== undefined){
-        let updateUser = {};
-        if(updateUser.fname){updateUser.fname = user.fname;}
-        if(updateUser.lname){updateUser.lname = user.lname;}
-        if(updateUser.email){updateUser.email = user.email;}
-        if(updateUser.password){updateUser.password = user.password;}
-        if(updateUser.date){updateUser.date = user.date;}
-        if(updateUser.profile){updateUser.profile = fileid;}
-        await User.findByIdAndUpdate(userid , {$set : updateUser},{new : true})
-        response.status(200).json({"error" : "Success!"});
-    }else{response.status(400).json({"error" : "Something Went Wrong!"})}
-})
 
 router.post('/sign-up',[
         body('fname','Enter A Valid First Name').isString().isLength({min:3,max : 20}),
