@@ -1,6 +1,6 @@
-const express = require('express');
 const getDetails = require('../middleware/GetDetails');
 const profilePic = require('../middleware/ProfileImage');
+const express = require('express');
 const mongoose = require('mongoose');
 const User = require('../models/Users');
 const Grid = require('gridfs-stream');
