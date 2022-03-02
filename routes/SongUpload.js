@@ -13,6 +13,7 @@ conn.once('open',()=>{
     gfs.collection('song');
 })
 router.post('/song',uploaderVerify,songInserter.single('song'),async (request,response)=>{
-    response.status(200).json({'file' : request.file});
+    if(request.file === undefined){response.status(400).json({'error' : 'Invalid File'})}
+    else{response.status(200).json({'error' : request.headers});}
 })
 module.exports = router;

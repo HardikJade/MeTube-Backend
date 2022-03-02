@@ -3,6 +3,7 @@ const GridFsStorage = require('multer-gridfs-storage').GridFsStorage;
 const multer = require('multer');
 const crypto = require('crypto');
 const maxSize = 10 * 1024 * 1024; // for 10MB
+const fileTypes = ['image/png','image/jpeg','image/jpgs'];
 const storage = new GridFsStorage({
   url: process.env.mongoURL,
   file: (request,file)=>{
@@ -15,10 +16,7 @@ const storage = new GridFsStorage({
             filename: filename,
             bucketName: 'song'
           };
-          if(file.mimetype === 'image/png' || 
-            file.mimetype === 'image/jpg' || 
-            file.mimetype === 'image/jpeg'
-          ){resolve(fileInfo)}
+          if(fileTypes.includes(file.mimetype)){resolve(fileInfo)}
           else{reject(err)}
         }
       });
