@@ -5,25 +5,37 @@ const SongSchema = new Schema({
         type: String,
         required: true
     },
-    author:  {
-        type: Array,
-        required: true
+    artist:  {
+        type: String,
+        default : 'Unknown'
     },
     uploadDate:  {
         type: Date,
         default:Date.now
     },
     releaseYear:  {
-        type: String,
+        type: String
+    },
+    album : {
+        type:String,
+        default: ""
+    },
+    genre : {
+        type:String,
+        default: ""
     },
     thumbnail : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : "profileImage.files",
-        required: false,
+        type : String,
+        default: ""
     },
     length :{
-        tyoe : Number,
+        type : Number,
         required : true
+    },
+    uploader :{
+        type: mongoose.Schema.Types.ObjectId,
+        ref : "users",
+        required: true
     },
     data: {
         type : mongoose.Schema.Types.ObjectId,
