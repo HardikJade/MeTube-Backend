@@ -38,10 +38,8 @@ const SongSchema = new Schema({
         required: true
     },
     data: {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : "song.files",
-        required: true,
-        default : null
+        type : String,
+        required: true
     }
 });
 const Song = mongoose.model('Song',SongSchema);
