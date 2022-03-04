@@ -25,22 +25,29 @@ router.put('/upload/avatar',getDetails,profilePic.single('profile'),async (reque
             if(updateUser.email){updateUser.email = user.email;}
             if(updateUser.password){updateUser.password = user.password;}
             if(updateUser.date){updateUser.date = user.date;}
-            if(updateUser.profile){updateUser.profile = fileid;}
+            updateUser.profile = request.file.filename
             await User.findByIdAndUpdate(userid , {$set : updateUser},{new : true})
-            response.status(200).json({"path" : fileid});
+            response.status(200).json({"path" : request.file.filename});
         }else{response.status(400).json({"error" : "Something Went Wrong!"})}
     }else{response.status(400).json({"error" : "File Not Found!"})}
 })
 router.get('/get-profile',getDetails,async (request,response)=>{
     let userid = request.user_id
     if(userid){
-        let user = await User.findById(userid);
-        let profileid = user.profile;
-        gfs.files.findOne({_id : profileid},(err,file)=>{
-            var readstream = gridfsBucket.openDownloadStream(profileid);
-            response.setHeader('Content-Type', file.contentType)
-            readstream.pipe(response);
-        })
+        try{
+            let user = await User.findById(userid);
+            let profile = user.profile;
+            gfs.files.findOne({filename : profile},(err,file)=>{
+                if(file === null || file.length === 0){response.status(400).send(null)}
+                else{
+                    console.log(file)
+                    var readstream = gridfsBucket.openDownloadStream(file._id);
+                    const header = {'Content-Type' : file.contentType}
+                    response.writeHead(200,header);
+                    readstream.pipe(response);
+                }
+            })
+        }catch(e){response.status(400).json({"error" : "Something Went Wrong!"})}
     }else{response.status(400).json({"error" : "User Not Found!"})}
 })
 module.exports = router;
