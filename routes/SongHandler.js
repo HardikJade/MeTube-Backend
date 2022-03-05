@@ -40,11 +40,11 @@ router.post('/upload/song',uploaderVerify,[
                 }else{response.status(400).json({'error' : 'File Not Saved!'})}
             }
             catch(e){response.status(400).json({'error' : "Something Went Wrong!"});}}
-        }})
+}})
+
 // router.get('/song/stream/:song_name',getDetails,(request,response)=>{
 router.get('/song/stream/:song_name',(request,response)=>{
-    // const userid = request.user_id;
-    const userid = "request.user_id";
+    const userid = "request.params.user";
     if(userid){
         try {
             let songId = request.params.song_name;
@@ -53,7 +53,7 @@ router.get('/song/stream/:song_name',(request,response)=>{
                     if(file === null || file.length === 0){response.status(400).json({"error1" : "Invalid Request"});}
                     else{
                         try{
-                            if(request.headers.range) {
+                            if(request.headers.range){
                                 const parts = request.headers['range'].replace(/bytes=/, "").split("-");
                                 const start = parseInt(parts[0], 10);
                                 let end = Math.min((start + 10**6) , file.length);
@@ -83,6 +83,7 @@ router.get('/song/stream/:song_name',(request,response)=>{
         catch(e){response.status(400).json({"error" : "Something Went Wrong!"})}
     }else{response.status(400).json({"error5" : "Invalid Request"});}
 })
+
 router.get('/song/list',getDetails,[
     body('size').exists().notEmpty().isInt({min:1,max:20}),
     body('page').exists().notEmpty()
@@ -104,4 +105,5 @@ router.get('/song/list',getDetails,[
         catch(e){response.status(400).json({"error" : "Something Went Wrong"});}    
     }        
 })
+
 module.exports = router;
