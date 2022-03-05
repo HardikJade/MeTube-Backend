@@ -40,7 +40,6 @@ router.get('/get-profile',getDetails,async (request,response)=>{
             gfs.files.findOne({filename : profile},(err,file)=>{
                 if(file === null || file.length === 0){response.status(400).send(null)}
                 else{
-                    console.log(file)
                     var readstream = gridfsBucket.openDownloadStream(file._id);
                     const header = {'Content-Type' : file.contentType}
                     response.writeHead(200,header);

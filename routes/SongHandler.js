@@ -9,8 +9,6 @@ const getDetails = require('../middleware/GetDetails');
 const router = express.Router();
 const conn = mongoose.connection;
 let gfs = null;
-
-/**@type { mongoose.mongo.GridFSBucket }*/
 let gridfsBucket = null;
 conn.once('open',()=>{
     gridfsBucket = new mongoose.mongo.GridFSBucket(conn.db, {bucketName: 'song'})
@@ -43,14 +41,16 @@ router.post('/upload/song',uploaderVerify,[
             }
             catch(e){response.status(400).json({'error' : "Something Went Wrong!"});}}
         }})
-router.get('/song/stream/:song_name',getDetails,(request,response)=>{
-    const userid = request.user_id;
+// router.get('/song/stream/:song_name',getDetails,(request,response)=>{
+router.get('/song/stream/:song_name',(request,response)=>{
+    // const userid = request.user_id;
+    const userid = "request.user_id";
     if(userid){
         try {
             let songId = request.params.song_name;
             if(songId){
                 gfs.files.findOne({filename : songId},async (err,file)=>{
-                    if(file === null || file.length === 0){response.status(400).json({"error" : "Invalid Request"});}
+                    if(file === null || file.length === 0){response.status(400).json({"error1" : "Invalid Request"});}
                     else{
                         try{
                             if(request.headers.range) {
@@ -58,6 +58,7 @@ router.get('/song/stream/:song_name',getDetails,(request,response)=>{
                                 const start = parseInt(parts[0], 10);
                                 let end = Math.min((start + 10**6) , file.length);
                                 const contentLength = (end - start);
+                                if(end === file.length){end--;}
                                 let header = {
                                     'Accept-Ranges': 'bytes',
                                     'Content-Length': contentLength,
@@ -65,14 +66,15 @@ router.get('/song/stream/:song_name',getDetails,(request,response)=>{
                                     'Content-Type': file.contentType,
                                     'Cache-Control': 'no-cache'
                                 }
-                                if ((start === file.length - 1 )|| (contentLength === 0)) {
+                                if ((start === file.length - 1 ) || (contentLength === 0)) {
                                     response.end()
                                     return response.socket.end()
                                 }
                                 response.writeHead(206,header);
+                                if(end === (file.length - 1)){end++;}
                                 gridfsBucket.openDownloadStream(file._id,{start,end}).pipe(response);
-                            }else{response.status(400).json({"error" : "Invalid Request"});}
-                        } catch(e){response.status(400).json({"error" : "Invalid Request"});}
+                            }else{response.status(400).json({"error2" : "Invalid Request"});}
+                        } catch(e){response.status(400).json({"error3" : "Invalid Request"});}
                     }
                 })
             }
