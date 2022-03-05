@@ -27,7 +27,6 @@ router.post('/upload/song',uploaderVerify,[
         else{
             try{
                 if(request.file.id){
-                    // request.file.mimetype
                     await Song.create({
                         name : request.body.name, 
                         album : request.body.album, 

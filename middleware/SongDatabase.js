@@ -1,7 +1,6 @@
 const GridFsStorage = require('multer-gridfs-storage').GridFsStorage;
 const multer = require('multer');
 const crypto = require('crypto');
-const maxSize = 10 * 1024 * 1024; // for 10MB
 const fileTypes = ['audio/mpeg'];
 const storage = new GridFsStorage({
   url: process.env.mongoURL,

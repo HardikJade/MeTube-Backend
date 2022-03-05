@@ -1,4 +1,3 @@
-const path = require('path');
 const GridFsStorage = require('multer-gridfs-storage').GridFsStorage;
 const multer = require('multer');
 const crypto = require('crypto');
