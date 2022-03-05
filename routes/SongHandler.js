@@ -9,10 +9,12 @@ const getDetails = require('../middleware/GetDetails');
 const router = express.Router();
 const conn = mongoose.connection;
 let gfs = null;
+
+/**@type { mongoose.mongo.GridFSBucket }*/
 let gridfsBucket = null;
 conn.once('open',()=>{
     gridfsBucket = new mongoose.mongo.GridFSBucket(conn.db, {bucketName: 'song'})
-    gfs = Grid(conn.db, mongoose.mongo);    
+    gfs = Grid(conn.db, mongoose.mongo);
     gfs.collection('song');
 })
 router.post('/upload/song',uploaderVerify,[
@@ -25,6 +27,7 @@ router.post('/upload/song',uploaderVerify,[
         else{
             try{
                 if(request.file.id){
+                    // request.file.mimetype
                     await Song.create({
                         name : request.body.name, 
                         album : request.body.album, 
@@ -46,34 +49,44 @@ router.get('/song/stream/:song_name',(request,response)=>{
     // const userid = request.user_id;
     const userid = "dsa";
     if(userid){
-        try{         
+        try {
             let songId = request.params.song_name;
             if(songId){
                 gfs.files.findOne({filename : songId},async (err,file)=>{
                     if(file === null || file.length === 0){response.status(400).json({"error" : "Invalid Request"});}
                     else{
                         try{
-                            if(request.headers.range){
+                            if(request.headers.range) {
                                 const parts = request.headers['range'].replace(/bytes=/, "").split("-");
                                 const start = parseInt(parts[0], 10);
-                                const end = parts[1] ? parseInt(parts[1], 10) : file.length - 1;
-                                const chunksize = (end - start) + 1;
-                                response.writeHead(206, {
+                                let end = Math.min((start + 10**6) , file.length);
+                                const contentLength = (end - start);
+                                let header = {
                                     'Accept-Ranges': 'bytes',
-                                    'Content-Length': chunksize,
+                                    'Content-Length': contentLength,
                                     'Content-Range': 'bytes ' + start + '-' + end + '/' + file.length,
-                                    'Content-Type': file.contentType
-                                });
-                                gridfsBucket.openDownloadStream(file._id,{start}).pipe(response);
+                                    'Content-Type': file.contentType,
+                                    'Cache-Control': 'no-cache'
+                                }
+                                console.log(header)
+                                if ((start === file.length - 1 )|| (contentLength === 0)) {
+                                    response.end()
+                                    return response.socket.end()
+                                }
+                                response.writeHead(206,header);
+                                gridfsBucket.openDownloadStream(file._id,{start,end}).pipe(response);
                             }else{response.status(400).json({"error" : "Invalid Request"});}
-                        }catch(e){response.status(400).json({"error" : "Invalid Request"});}
+                        } catch(e){response.status(400).json({"error" : "Invalid Request"});}
                     }
                 })
             }
             else{response.status(400).json({"error" : "Invalid Request"});}   
         }
-        catch(e){response.status(400).json({"error" : "Something Went Wrong!"})}
-    }else{response.status(400).json({"error" : "Invalid Request"});}
+        catch(e){
+            console.log(e);            
+            response.status(400).json({"error" : "Something Went Wrong!"})
+        }
+    }else{response.status(400).json({"error5" : "Invalid Request"});}
 })
 router.get('/song/list',getDetails,[
     body('size').exists().notEmpty().isInt({min:1,max:20}),
