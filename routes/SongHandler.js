@@ -43,10 +43,8 @@ router.post('/upload/song',uploaderVerify,[
             }
             catch(e){response.status(400).json({'error' : "Something Went Wrong!"});}}
         }})
-// router.get('/song/stream',getDetails,(request,response)=>{
-router.get('/song/stream/:song_name',(request,response)=>{
-    // const userid = request.user_id;
-    const userid = "dsa";
+router.get('/song/stream/:song_name',getDetails,(request,response)=>{
+    const userid = request.user_id;
     if(userid){
         try {
             let songId = request.params.song_name;
@@ -67,7 +65,6 @@ router.get('/song/stream/:song_name',(request,response)=>{
                                     'Content-Type': file.contentType,
                                     'Cache-Control': 'no-cache'
                                 }
-                                console.log(header)
                                 if ((start === file.length - 1 )|| (contentLength === 0)) {
                                     response.end()
                                     return response.socket.end()
@@ -81,10 +78,7 @@ router.get('/song/stream/:song_name',(request,response)=>{
             }
             else{response.status(400).json({"error" : "Invalid Request"});}   
         }
-        catch(e){
-            console.log(e);            
-            response.status(400).json({"error" : "Something Went Wrong!"})
-        }
+        catch(e){response.status(400).json({"error" : "Something Went Wrong!"})}
     }else{response.status(400).json({"error5" : "Invalid Request"});}
 })
 router.get('/song/list',getDetails,[
